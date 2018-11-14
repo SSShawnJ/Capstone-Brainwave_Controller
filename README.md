@@ -1,14 +1,18 @@
 # Capstone-Brainwave_Controller
-- I used Muse 2014
+- I used Muse 2014 and MacOS for code development.
 
 ### Setup:
 1. Download and install [Muse Developer tools](http://developer.choosemuse.com/tools/mac-tools/getting-started-for-mac)
 2. Download Python
 3. Connect Muse to my laptop using Bluetooth
-4. Open one terminal and bridge Muse data to my laptop
+
+### Gather EEG data:
+1. Open one terminal and bridge Muse data to my laptop
 
 ```muse-io --device Muse --osc osc.udp://127.0.0.1:5000```
 
-5. Open a new terminal, activate Python, and run the server script
+2. Open a new terminal, activate Python, and run the server script
 
 ```python server.py```
+
+3. Hit ```Ctrl + C``` to stop the server; the CSV files should be created under folder ```Data```
