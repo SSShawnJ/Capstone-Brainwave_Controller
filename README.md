@@ -1,6 +1,8 @@
 # Capstone-Brainwave_Controller
 - I used Muse 2014 and MacOS for code development.
 
+
+
 ### Setup:
 1. Download and install [Muse Developer tools](http://developer.choosemuse.com/tools/mac-tools/getting-started-for-mac)
 2. Download Python
