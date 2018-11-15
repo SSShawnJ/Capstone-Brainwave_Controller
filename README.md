@@ -1,4 +1,5 @@
 # Capstone-Brainwave_Controller
+- Mapping: stop -> 0, left ->1, right -> 2, forward -> 3. (We do not need backward for now because this can be achieved by turn left or right twice and go forward)
 - I used Muse 2014 and MacOS for code development.
 
 
