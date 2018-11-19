@@ -9,7 +9,7 @@ TODO:
 1. Try to improve the overral training accuracy and F1 score.
      -  Hyperparamter tuning (SEGMENT_SIZE, model related parameters, etc.)
      -  Try other classifiers (Neural Networks(MLP, 1-D CNN, RNN), Decision Tree, etc.)
-2. Try to use less features to achieve resonable accuracy.
+2. Try to use less features to achieve resonable accuracy (PCA).
 
 - Mapping: stop -> 0, left ->1, right -> 2, forward -> 3. (We do not need "backward" for now because this can be achieved by turn left or right twice and go forward)
 - I used Muse 2014 and MacOS for code development.
