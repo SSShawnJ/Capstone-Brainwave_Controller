@@ -17,10 +17,10 @@ TODO:
 ### Setup:
 1. Download and install [Muse Developer tools](http://developer.choosemuse.com/tools/mac-tools/getting-started-for-mac)
 2. Download Python
-3. Connect Muse to my laptop using Bluetooth
+3. Connect Muse to your laptop using Bluetooth
 
 ### Gather EEG data:
-1. Open one terminal and bridge Muse data to my laptop
+1. Open one terminal and bridge Muse data to your localhost
 
 ```muse-io --device Muse --osc osc.udp://127.0.0.1:5000```
 
