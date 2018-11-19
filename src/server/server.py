@@ -398,7 +398,7 @@ if __name__ == "__main__":
     csvfile_eeg = open('../data/'+args.filename_eeg, 'a')
     fieldnames_eeg = ['timestamp', 'ch1', 'ch2','ch3','ch4']
     writer_eeg = csv.DictWriter(csvfile_eeg, fieldnames=fieldnames_eeg)
-    writer_eeg.writeheader()
+    #writer_eeg.writeheader()
 
     csvfile_power = open('../data/'+args.filename_power, 'a')
     fieldnames_power = ['timestamp', 

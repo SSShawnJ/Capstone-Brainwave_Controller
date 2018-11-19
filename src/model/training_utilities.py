@@ -17,10 +17,14 @@ def extract_training_data(SEGMENT_SIZE=15):
 							"../data/arfa/power_data_arfa_left.csv",
 							# "../data/arfa/power_data_law_right.csv",
 							"../data/arfa/power_data_arfa_forward.csv",
+							"../data/shawn/power_data_shawn_left.csv",
+							"../data/shawn/power_data_shawn_right.csv",
+							"../data/shawn/power_data_shawn_forward.csv"
 							]
 	training_file_path_stop = [ "../data/lawrence/power_data_law_stop.csv",
 								"../data/alex/power_data_alex_stop.csv",
 								"../data/arfa/power_data_arfa_stop.csv",
+								"../data/shawn/power_data_shawn_stop.csv",
 								]
 	output_file_path = "../data/training/training_data.csv"
 
@@ -137,22 +141,46 @@ def load_data(path_to_data = "../data/training/training_data.csv"):
 
 	return np.array(features),np.array(y)
 
+def create_training_data():
+	feature, y = load_data()
+
+	# Do not use relative Bnad Powers for now .
+	# It can have NaN problem and also does not effect the final result much.
+	feature = np.c_[feature[:,0:20],feature[:,40:60]]
+	print("feature vector shape:",feature.shape)
+	data = np.c_[feature, y]
+	np.random.seed(seed=2)
+	data=shuffle(data)
+	np.savetxt("../data/training/training_set.csv", data, delimiter=",")
+
 
 if __name__ == '__main__':
-	#extract_training_data()
+	# extract_training_data()
+	# create_training_data()
 
-	feature, y = load_data()
-	feature = np.c_[feature[:,0:20],feature[:,40:60]]
-	print(feature.shape)
-	np.random.seed(seed=2)
 
-	feature,y = shuffle(feature,y)
-	#np.savetxt("Features.csv", feature, delimiter=",")
-	#np.savetxt("Labels.csv", y, delimiter=",")
+	#### Actual Training ####
+	#
+	# TODO:
+	# 1. Try to improve the overral training accuracy and F1 score.
+	#     a. Hyperparamter tuning (SEGMENT_SIZE, model related parameters, etc.)
+	#     b. Try other classifiers (Neural Networks(MLP, 1-D CNN, RNN), Decision Tree, etc.)
+	# 2. Try to use less features to achieve resonable accuracy.
+	#
+	# 
+	# Current Benchmark (TRY TO IMPROVE IT!):
+	# training_accuracy 0.9633838383838383
+	# test_accuracy: 0.9045226130653267
+	# test f1 score (each class): [0.9375     0.87037037 0.90410959 0.90909091]
+	# test f1 score (weigted): 0.9047064255598364
+	#
+	#########################
 
-	X_train, X_test, y_train, y_test = train_test_split(feature, y, test_size=0.4, random_state=0)
+	feature, y = load_data("../data/training/training_set.csv")
 
-	clf = svm.SVC(kernel='rbf', C=50)
+	X_train, X_test, y_train, y_test = train_test_split(feature, y, test_size=0.2, random_state=0)
+
+	clf = svm.SVC(kernel='rbf', C=30)
 	clf.fit(X_train,y_train)
 
 	pred_training = clf.predict(X_train)
