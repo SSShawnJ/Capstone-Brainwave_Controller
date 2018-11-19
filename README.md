@@ -2,8 +2,8 @@
 ### Current Benchmark (TRY TO IMPROVE IT!):
 - training_accuracy 0.9633838383838383
 - test_accuracy: 0.9045226130653267
-- test f1 score (each class): [0.9375     0.87037037 0.90410959 0.90909091]
-- test f1 score (weigted): 0.9047064255598364
+- test F1 score (each class): [0.9375     0.87037037 0.90410959 0.90909091]
+- test F1 score (weigted): 0.9047064255598364
 
 TODO:
 1. Try to improve the overral training accuracy and F1 score.
