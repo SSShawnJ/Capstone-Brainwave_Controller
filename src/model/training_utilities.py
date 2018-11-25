@@ -7,6 +7,7 @@ from sklearn.metrics import f1_score
 from sklearn.utils import shuffle
 
 def extract_training_data(SEGMENT_SIZE=15):
+	import os
 
 	training_file_path_nonstop = ["../data/lawrence/power_data_law_left.csv",
 							"../data/lawrence/power_data_law_right.csv",
@@ -27,7 +28,7 @@ def extract_training_data(SEGMENT_SIZE=15):
 								"../data/shawn/power_data_shawn_stop.csv",
 								]
 	output_file_path = "../data/training/training_data.csv"
-
+	os.system("rm "+ output_file_path)
 
 
 	for FILE in training_file_path_nonstop:
@@ -147,7 +148,7 @@ def create_training_data():
 	# Do not use relative Bnad Powers for now .
 	# It can have NaN problem and also does not effect the final result much.
 	feature = np.c_[feature[:,0:20],feature[:,40:60]]
-	print("feature vector shape:",feature.shape)
+	# print("feature vector shape:",feature.shape)
 	data = np.c_[feature, y]
 	np.random.seed(seed=2)
 	data=shuffle(data)
@@ -155,7 +156,7 @@ def create_training_data():
 
 
 if __name__ == '__main__':
-	# extract_training_data()
+	# extract_training_data(SEGMENT_SIZE=3)
 	# create_training_data()
 
 
@@ -177,6 +178,7 @@ if __name__ == '__main__':
 	#########################
 
 	feature, y = load_data("../data/training/training_set.csv")
+	print("feature vector shape:",feature.shape)
 
 	X_train, X_test, y_train, y_test = train_test_split(feature, y, test_size=0.2, random_state=0)
 
@@ -184,14 +186,18 @@ if __name__ == '__main__':
 	clf.fit(X_train,y_train)
 
 	pred_training = clf.predict(X_train)
-	pred=clf.predict(X_test)
+	pred = clf.predict(X_test)
 
+	print("Hyperparameter Value:\n\tSEGMENT_SIZE:3\n\tSVM kernel:'rbf'\n\tSVM C:30")
 	print("training_accuracy", accuracy_score(y_train,pred_training))
 	print("test_accuracy:",accuracy_score(y_test,pred))
 	print("test F1 score (each class):", f1_score(y_test, pred, average=None) )
 	print("test F1 score (weigted):", f1_score(y_test, pred, average='weighted') )
-	print(y_test)
-	print(pred)
+	# print(y_test)
+	# print(pred)
+	for i in range(len(y_test)):
+		if y_test[i] != pred[i]:
+			print("predict value:%d, truth value:%d" % (pred[i], y_test[i]))
 
 
 
