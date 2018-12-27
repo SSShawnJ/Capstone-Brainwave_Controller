@@ -176,17 +176,21 @@ if __name__ == '__main__':
 	# test F1 score (weigted): 0.9047064255598364
 	#
 	#########################
+	import joblib
 
 	feature, y = load_data("../data/training/training_set.csv")
 	print("feature vector shape:",feature.shape)
 
 	X_train, X_test, y_train, y_test = train_test_split(feature, y, test_size=0.2, random_state=0)
 
-	clf = svm.SVC(kernel='rbf', C=30)
+	clf = svm.SVC(kernel='rbf', C=45)
 	clf.fit(X_train,y_train)
+	#clf = joblib.load('svm.joblib')
 
 	pred_training = clf.predict(X_train)
 	pred = clf.predict(X_test)
+
+	joblib.dump(clf, 'svm.joblib') 
 
 	print("Hyperparameter Value:\n\tSEGMENT_SIZE:3\n\tSVM kernel:'rbf'\n\tSVM C:30")
 	print("training_accuracy", accuracy_score(y_train,pred_training))

@@ -11,9 +11,6 @@ from pythonosc import dispatcher
 from pythonosc import osc_server
 
 
-# TODO: semaphore for different handlers.
-# TODO: scale up the raw EEG data. Done!
-
 # Check http://forum.choosemuse.com/t/quantization/327 to see why we need this
 quant_count = 0
 
@@ -394,11 +391,11 @@ if __name__ == "__main__":
                         help="the name of the file to save data")
     args = parser.parse_args()
 
-    # File writers
-    csvfile_eeg = open('../data/'+args.filename_eeg, 'a')
-    fieldnames_eeg = ['timestamp', 'ch1', 'ch2','ch3','ch4']
-    writer_eeg = csv.DictWriter(csvfile_eeg, fieldnames=fieldnames_eeg)
-    #writer_eeg.writeheader()
+    # EEG File writers
+    # csvfile_eeg = open('../data/'+args.filename_eeg, 'a')
+    # fieldnames_eeg = ['timestamp', 'ch1', 'ch2','ch3','ch4']
+    # writer_eeg = csv.DictWriter(csvfile_eeg, fieldnames=fieldnames_eeg)
+    # writer_eeg.writeheader()
 
     csvfile_power = open('../data/'+args.filename_power, 'a')
     fieldnames_power = ['timestamp', 
@@ -425,8 +422,8 @@ if __name__ == "__main__":
 
     dispatcher = dispatcher.Dispatcher()
     dispatcher.map("/debug", print)
-    dispatcher.map("/muse/eeg", eeg_handler, "EEG", writer_eeg)
-    dispatcher.map("/muse/eeg/quantization", quantization_handler, "Quantization")
+    # dispatcher.map("/muse/eeg", eeg_handler, "EEG", writer_eeg)
+    # dispatcher.map("/muse/eeg/quantization", quantization_handler, "Quantization")
 
     # Get absolute data, five types of signals.
     dispatcher.map("/muse/elements/alpha_absolute", alpha_absolute_handler, "alpha_absolute")
