@@ -1,10 +1,10 @@
 # Capstone-Brainwave_Controller
 ### Current Benchmark (TRY TO IMPROVE IT!):
-- SVM Hyperparameter Value: SEGMENT_SIZE:3, Kernel:'rbf', C:30
-- training_accuracy 0.9873031995937024
-- test_accuracy: 0.983756345177665
-- test F1 score (each class): [0.9978678  0.98168498 0.97505669 0.98054475]
-- test F1 score (weigted): 0.9837477367311879
+- SVM Hyperparameter Value: SEGMENT_SIZE:3, Kernel:'rbf', C:45
+- training_accuracy 0.9931437277805993
+- test_accuracy: 0.9827411167512691
+- test F1 score (each class): [0.9978678  0.98168498 0.97272727 0.97864078]
+- test F1 score (weigted): 0.9827235943012146
 
 TODO:
 1. Try to improve the overral training accuracy and F1 score.
