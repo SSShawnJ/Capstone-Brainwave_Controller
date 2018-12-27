@@ -170,10 +170,10 @@ if __name__ == '__main__':
 	#
 	# 
 	# Current Benchmark (TRY TO IMPROVE IT!):
-	# training_accuracy 0.9633838383838383
-	# test_accuracy: 0.9045226130653267
-	# test F1 score (each class): [0.9375     0.87037037 0.90410959 0.90909091]
-	# test F1 score (weigted): 0.9047064255598364
+	# training_accuracy 0.9931437277805993
+	# test_accuracy: 0.9827411167512691
+	# test F1 score (each class): [0.9978678  0.98168498 0.97272727 0.97864078]
+	# test F1 score (weigted): 0.9827235943012146
 	#
 	#########################
 	import joblib
@@ -192,7 +192,7 @@ if __name__ == '__main__':
 
 	joblib.dump(clf, 'svm.joblib') 
 
-	print("Hyperparameter Value:\n\tSEGMENT_SIZE:3\n\tSVM kernel:'rbf'\n\tSVM C:30")
+	print("Hyperparameter Value:\n\tSEGMENT_SIZE:3\n\tSVM kernel:'rbf'\n\tSVM C:45")
 	print("training_accuracy", accuracy_score(y_train,pred_training))
 	print("test_accuracy:",accuracy_score(y_test,pred))
 	print("test F1 score (each class):", f1_score(y_test, pred, average=None) )
