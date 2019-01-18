@@ -1,14 +1,20 @@
 import argparse
 import math
+import numpy as np
 import csv
 import time
 import signal
 import sys
 import queue
+import time
 
 from threading import Lock, Thread
 from pythonosc import dispatcher
 from pythonosc import osc_server
+from utility import DTModelBinary
+from utility import DTModelMulti
+from utility import SVMModelBinary
+from utility import SVMModelMulti
 
 
 # Check http://forum.choosemuse.com/t/quantization/327 to see why we need this
@@ -127,7 +133,7 @@ def alpha_relative_handler(unused_addr, args, alpha_rel_ch1, alpha_rel_ch2, alph
 
 def beta_relative_handler(unused_addr, args, beta_rel_ch1, beta_rel_ch2, beta_rel_ch3, beta_rel_ch4):
     global beta_relative
-    print(beta_rel_ch1, beta_rel_ch2, beta_rel_ch3, beta_rel_ch4)
+    #print(beta_rel_ch1, beta_rel_ch2, beta_rel_ch3, beta_rel_ch4)
     beta_relative.put(beta_rel_ch1)
     beta_relative.put(beta_rel_ch2)
     beta_relative.put(beta_rel_ch3)
@@ -157,7 +163,7 @@ def gamma_relative_handler(unused_addr, args, gamma_rel_ch1, gamma_rel_ch2, gamm
 
 # session score data handler
 def alpha_session_score_handler(unused_addr, args, alpha_sess_ch1, alpha_sess_ch2, alpha_sess_ch3, alpha_sess_ch4):
-    print(alpha_sess_ch1, alpha_sess_ch2, alpha_sess_ch3,alpha_sess_ch4)
+    #print(alpha_sess_ch1, alpha_sess_ch2, alpha_sess_ch3,alpha_sess_ch4)
     global alpha_session_score
     alpha_session_score.put(alpha_sess_ch1)
     alpha_session_score.put(alpha_sess_ch2)
@@ -197,6 +203,8 @@ class PowerBandsReceiver(Thread):
         Thread.__init__(self)
         self.shoudStop = False
         self.writer = fileWriter
+        self.model = SVMModelBinary("../model/")
+        self.segment_size = 3
 
     def stop(self):
         self.shoudStop = True
@@ -220,82 +228,84 @@ class PowerBandsReceiver(Thread):
         global theta_session_score
         global gamma_session_score
 
+        data = []
+
         while not self.shoudStop:
             #print("here")
-            a_a_ch1 = alpha_absolute.get()
-            a_a_ch2 = alpha_absolute.get()
-            a_a_ch3 = alpha_absolute.get()
-            a_a_ch4 = alpha_absolute.get()
+            a_a_ch1 = round(alpha_absolute.get(),9)
+            a_a_ch2 = round(alpha_absolute.get(),9)
+            a_a_ch3 = round(alpha_absolute.get(),9)
+            a_a_ch4 = round(alpha_absolute.get(),9)
 
-            b_a_ch1 = beta_absolute.get()
-            b_a_ch2 = beta_absolute.get()
-            b_a_ch3 = beta_absolute.get()
-            b_a_ch4 = beta_absolute.get()
+            b_a_ch1 = round(beta_absolute.get(),9)
+            b_a_ch2 = round(beta_absolute.get(),9)
+            b_a_ch3 = round(beta_absolute.get(),9)
+            b_a_ch4 = round(beta_absolute.get(),9)
 
-            d_a_ch1 = delta_absolute.get()
-            d_a_ch2 = delta_absolute.get()
-            d_a_ch3 = delta_absolute.get()
-            d_a_ch4 = delta_absolute.get()
+            d_a_ch1 = round(delta_absolute.get(),9)
+            d_a_ch2 = round(delta_absolute.get(),9)
+            d_a_ch3 = round(delta_absolute.get(),9)
+            d_a_ch4 = round(delta_absolute.get(),9)
 
-            t_a_ch1 = theta_absolute.get()
-            t_a_ch2 = theta_absolute.get()
-            t_a_ch3 = theta_absolute.get()
-            t_a_ch4 = theta_absolute.get()
+            t_a_ch1 = round(theta_absolute.get(),9)
+            t_a_ch2 = round(theta_absolute.get(),9)
+            t_a_ch3 = round(theta_absolute.get(),9)
+            t_a_ch4 = round(theta_absolute.get(),9)
 
-            g_a_ch1 = gamma_absolute.get()
-            g_a_ch2 = gamma_absolute.get()
-            g_a_ch3 = gamma_absolute.get()
-            g_a_ch4 = gamma_absolute.get()
+            g_a_ch1 = round(gamma_absolute.get(),9)
+            g_a_ch2 = round(gamma_absolute.get(),9)
+            g_a_ch3 = round(gamma_absolute.get(),9)
+            g_a_ch4 = round(gamma_absolute.get(),9)
 
-            a_r_ch1 = alpha_relative.get()
-            a_r_ch2 = alpha_relative.get()
-            a_r_ch3 = alpha_relative.get()
-            a_r_ch4 = alpha_relative.get()
+            a_r_ch1 = round(alpha_relative.get(),9)
+            a_r_ch2 = round(alpha_relative.get(),9)
+            a_r_ch3 = round(alpha_relative.get(),9)
+            a_r_ch4 = round(alpha_relative.get(),9)
 
-            b_r_ch1 = beta_relative.get()
-            b_r_ch2 = beta_relative.get()
-            b_r_ch3 = beta_relative.get()
-            b_r_ch4 = beta_relative.get()
+            b_r_ch1 = round(beta_relative.get(),9)
+            b_r_ch2 = round(beta_relative.get(),9)
+            b_r_ch3 = round(beta_relative.get(),9)
+            b_r_ch4 = round(beta_relative.get(),9)
 
-            d_r_ch1 = delta_relative.get()
-            d_r_ch2 = delta_relative.get()
-            d_r_ch3 = delta_relative.get()
-            d_r_ch4 = delta_relative.get()
+            d_r_ch1 = round(delta_relative.get(),9)
+            d_r_ch2 = round(delta_relative.get(),9)
+            d_r_ch3 = round(delta_relative.get(),9)
+            d_r_ch4 = round(delta_relative.get(),9)
 
-            t_r_ch1 = theta_relative.get()
-            t_r_ch2 = theta_relative.get()
-            t_r_ch3 = theta_relative.get()
-            t_r_ch4 = theta_relative.get()
+            t_r_ch1 = round(theta_relative.get(),9)
+            t_r_ch2 = round(theta_relative.get(),9)
+            t_r_ch3 = round(theta_relative.get(),9)
+            t_r_ch4 = round(theta_relative.get(),9)
 
-            g_r_ch1 = gamma_relative.get()
-            g_r_ch2 = gamma_relative.get()
-            g_r_ch3 = gamma_relative.get()
-            g_r_ch4 = gamma_relative.get()
+            g_r_ch1 = round(gamma_relative.get(),9)
+            g_r_ch2 = round(gamma_relative.get(),9)
+            g_r_ch3 = round(gamma_relative.get(),9)
+            g_r_ch4 = round(gamma_relative.get(),9)
 
-            a_s_ch1 = alpha_session_score.get()
-            a_s_ch2 = alpha_session_score.get()
-            a_s_ch3 = alpha_session_score.get()
-            a_s_ch4 = alpha_session_score.get()
+            a_s_ch1 = round(alpha_session_score.get(),9)
+            a_s_ch2 = round(alpha_session_score.get(),9)
+            a_s_ch3 = round(alpha_session_score.get(),9)
+            a_s_ch4 = round(alpha_session_score.get(),9)
 
-            b_s_ch1 = beta_session_score.get()
-            b_s_ch2 = beta_session_score.get()
-            b_s_ch3 = beta_session_score.get()
-            b_s_ch4 = beta_session_score.get()
+            b_s_ch1 = round(beta_session_score.get(),9)
+            b_s_ch2 = round(beta_session_score.get(),9)
+            b_s_ch3 = round(beta_session_score.get(),9)
+            b_s_ch4 = round(beta_session_score.get(),9)
 
-            d_s_ch1 = delta_session_score.get()
-            d_s_ch2 = delta_session_score.get()
-            d_s_ch3 = delta_session_score.get()
-            d_s_ch4 = delta_session_score.get()
+            d_s_ch1 = round(delta_session_score.get(),9)
+            d_s_ch2 = round(delta_session_score.get(),9)
+            d_s_ch3 = round(delta_session_score.get(),9)
+            d_s_ch4 = round(delta_session_score.get(),9)
 
-            t_s_ch1 = theta_session_score.get()
-            t_s_ch2 = theta_session_score.get()
-            t_s_ch3 = theta_session_score.get()
-            t_s_ch4 = theta_session_score.get()
+            t_s_ch1 = round(theta_session_score.get(),9)
+            t_s_ch2 = round(theta_session_score.get(),9)
+            t_s_ch3 = round(theta_session_score.get(),9)
+            t_s_ch4 = round(theta_session_score.get(),9)
 
-            g_s_ch1 = gamma_session_score.get()
-            g_s_ch2 = gamma_session_score.get()
-            g_s_ch3 = gamma_session_score.get()
-            g_s_ch4 = gamma_session_score.get()
+            g_s_ch1 = round(gamma_session_score.get(),9)
+            g_s_ch2 = round(gamma_session_score.get(),9)
+            g_s_ch3 = round(gamma_session_score.get(),9)
+            g_s_ch4 = round(gamma_session_score.get(),9)
 
             #print("g_s_ch1:",g_s_ch1)
 
@@ -316,6 +326,60 @@ class PowerBandsReceiver(Thread):
                                     'delta_session_score_ch1':d_s_ch1, 'delta_session_score_ch2':d_s_ch2, 'delta_session_score_ch3':d_s_ch3, 'delta_session_score_ch4':d_s_ch4,
                                     'theta_session_score_ch1':t_s_ch1,'theta_session_score_ch2':t_s_ch2,'theta_session_score_ch3':t_s_ch3,'theta_session_score_ch4':t_s_ch4,
                                     'gamma_session_score_ch1':g_s_ch1,'gamma_session_score_ch2':g_s_ch2,'gamma_session_score_ch3':g_s_ch3,'gamma_session_score_ch4':g_s_ch4})
+                data.append([a_a_ch1,a_a_ch2,a_a_ch3,a_a_ch4,
+                             b_a_ch1,b_a_ch2,b_a_ch3,b_a_ch4,
+                             d_a_ch1,d_a_ch2,d_a_ch3,d_a_ch4,
+                             t_a_ch1,t_a_ch2,t_a_ch3,t_a_ch4,
+                             g_a_ch1,g_a_ch2,g_a_ch3,g_a_ch4,
+                             # a_r_ch1,a_r_ch2,a_r_ch3,a_r_ch4,
+                             # b_r_ch1,b_r_ch2,b_r_ch3,b_r_ch4,
+                             # d_r_ch1,d_r_ch2,d_r_ch3,d_r_ch4,
+                             # t_r_ch1,t_r_ch2,t_r_ch3,t_r_ch4,
+                             # g_r_ch1,g_r_ch2,g_r_ch3,g_r_ch4,
+                             a_s_ch1,a_s_ch2,a_s_ch3,a_s_ch4,
+                             b_s_ch1,b_s_ch2,b_s_ch3,b_s_ch4,
+                             d_s_ch1,d_s_ch2,d_s_ch3,d_s_ch4,
+                             t_s_ch1,t_s_ch2,t_s_ch3,t_s_ch4,
+                             g_s_ch1,g_s_ch2,g_s_ch3,g_s_ch4
+                            ])
+                if len(data) == self.segment_size:
+                    feature = np.sum(data, axis = 0)
+                    feature = np.expand_dims(feature, axis=0) #sklearn needs a 2-D input data shape
+                    bt = time.time()
+                    y = self.model.predict(feature)
+                    st = time.time()
+                    if y == 0:
+                        print("stop,%f" % (st-bt))
+                    elif y == 1:
+                        print("left,%f" % (st-bt))
+                    elif y == 2:
+                        print("right,%f" % (st-bt))
+                    elif y == 3:
+                        print("forward,%f" % (st-bt))
+                    else:
+                        print("none,%f" % (st-bt))
+
+                    data = []
+
+
+
+
+                # self.writer.writerow({'timestamp':time.time(),
+                #                     'alpha_absolute_ch1':a_a_ch1,'alpha_absolute_ch2':a_a_ch2,'alpha_absolute_ch3':a_a_ch3,'alpha_absolute_ch4':a_a_ch4,
+                #                     'beta_absolute_ch1':b_a_ch1,'beta_absolute_ch2':b_a_ch2,'beta_absolute_ch3':b_a_ch3,'beta_absolute_ch4':b_a_ch4,
+                #                     'delta_absolute_ch1':d_a_ch1,'delta_absolute_ch2':d_a_ch2,'delta_absolute_ch3':d_a_ch3,'delta_absolute_ch4':d_a_ch4,
+                #                     'theta_absolute_ch1':t_a_ch1,'theta_absolute_ch2':t_a_ch2,'theta_absolute_ch3':t_a_ch3,'theta_absolute_ch4':t_a_ch4,
+                #                     'gamma_absolute_ch1':g_a_ch1,'gamma_absolute_ch2':g_a_ch2,'gamma_absolute_ch3':g_a_ch3,'gamma_absolute_ch4':g_a_ch4,
+                #                     'alpha_relative_ch1':a_r_ch1, 'alpha_relative_ch2':a_r_ch2,'alpha_relative_ch3':a_r_ch3,'alpha_relative_ch4':a_r_ch4,
+                #                     'beta_relative_ch1':b_r_ch1,'beta_relative_ch2':b_r_ch2,'beta_relative_ch3':b_r_ch3,'beta_relative_ch4':b_r_ch4,
+                #                     'delta_relative_ch1':d_r_ch1, 'delta_relative_ch2':d_r_ch2,'delta_relative_ch3':d_r_ch3,'delta_relative_ch4':d_r_ch4,
+                #                     'theta_relative_ch1':t_r_ch1, 'theta_relative_ch2':t_r_ch2, 'theta_relative_ch3':t_r_ch3, 'theta_relative_ch4':t_r_ch4,
+                #                     'gamma_relative_ch1':g_r_ch1, 'gamma_relative_ch2':g_r_ch2, 'gamma_relative_ch3':g_r_ch3, 'gamma_relative_ch4':g_r_ch4,
+                #                     'alpha_session_score_ch1':a_s_ch1,'alpha_session_score_ch2':a_s_ch2,'alpha_session_score_ch3':a_s_ch3,'alpha_session_score_ch4':a_s_ch4,
+                #                     'beta_session_score_ch1':b_s_ch1,'beta_session_score_ch2':b_s_ch2,'beta_session_score_ch3':b_s_ch3,'beta_session_score_ch4':b_s_ch4,
+                #                     'delta_session_score_ch1':d_s_ch1, 'delta_session_score_ch2':d_s_ch2, 'delta_session_score_ch3':d_s_ch3, 'delta_session_score_ch4':d_s_ch4,
+                #                     'theta_session_score_ch1':t_s_ch1,'theta_session_score_ch2':t_s_ch2,'theta_session_score_ch3':t_s_ch3,'theta_session_score_ch4':t_s_ch4,
+                #                     'gamma_session_score_ch1':g_s_ch1,'gamma_session_score_ch2':g_s_ch2,'gamma_session_score_ch3':g_s_ch3,'gamma_session_score_ch4':g_s_ch4})
 
 
 def exit_pro(sig, frame):
@@ -340,23 +404,23 @@ def exit_pro(sig, frame):
     print()
     power_receiver.stop()
 
-    list(map(alpha_absolute.put,[1,1,1,1]))
-    list(map(beta_absolute.put,[1,1,1,1]))
-    list(map(delta_absolute.put,[1,1,1,1]))
-    list(map(theta_absolute.put,[1,1,1,1]))
-    list(map(gamma_absolute.put,[1,1,1,1]))
+    list(map(alpha_absolute.put,[0,0,0,0]))
+    list(map(beta_absolute.put,[0,0,0,0]))
+    list(map(delta_absolute.put,[0,0,0,0]))
+    list(map(theta_absolute.put,[0,0,0,0]))
+    list(map(gamma_absolute.put,[0,0,0,0]))
 
-    list(map(alpha_relative.put,[1,1,1,1]))
-    list(map(beta_relative.put,[1,1,1,1]))
-    list(map(delta_relative.put,[1,1,1,1]))
-    list(map(theta_relative.put,[1,1,1,1]))
-    list(map(gamma_relative.put,[1,1,1,1]))
+    list(map(alpha_relative.put,[0,0,0,0]))
+    list(map(beta_relative.put,[0,0,0,0]))
+    list(map(delta_relative.put,[0,0,0,0]))
+    list(map(theta_relative.put,[0,0,0,0]))
+    list(map(gamma_relative.put,[0,0,0,0]))
 
-    list(map(alpha_session_score.put,[1,1,1,1]))
-    list(map(beta_session_score.put,[1,1,1,1]))
-    list(map(delta_session_score.put,[1,1,1,1]))
-    list(map(theta_session_score.put,[1,1,1,1]))
-    list(map(gamma_session_score.put,[1,1,1,1]))
+    list(map(alpha_session_score.put,[0,0,0,0]))
+    list(map(beta_session_score.put,[0,0,0,0]))
+    list(map(delta_session_score.put,[0,0,0,0]))
+    list(map(theta_session_score.put,[0,0,0,0]))
+    list(map(gamma_session_score.put,[0,0,0,0]))
 
     if csvfile_eeg:
         csvfile_eeg.close()
@@ -415,9 +479,9 @@ if __name__ == "__main__":
                         'theta_session_score_ch1','theta_session_score_ch2','theta_session_score_ch3','theta_session_score_ch4',
                         'gamma_session_score_ch1','gamma_session_score_ch2','gamma_session_score_ch3','gamma_session_score_ch4']
     writer_power = csv.DictWriter(csvfile_power, fieldnames=fieldnames_power)
-    writer_power.writeheader()
+    #writer_power.writeheader()
 
-    power_receiver = PowerBandsReceiver(writer_power)
+    power_receiver = PowerBandsReceiver(writer_power) #writer_power
     power_receiver.start()
 
     dispatcher = dispatcher.Dispatcher()
