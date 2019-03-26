@@ -7,6 +7,7 @@ import signal
 import sys
 import queue
 import time
+import serial
 
 from threading import Lock, Thread
 from pythonosc import dispatcher
@@ -15,6 +16,7 @@ from utility import DTModelBinary
 from utility import DTModelMulti
 from utility import SVMModelBinary
 from utility import SVMModelMulti
+from sender import BluetoothSender
 
 
 # Check http://forum.choosemuse.com/t/quantization/327 to see why we need this
@@ -52,6 +54,8 @@ csvfile_eeg = None
 csvfile_power = None
 
 power_receiver = None
+bluetooth = None
+sender = None
 
 '''
     Get raw EEG data and write to a csv file.
@@ -350,14 +354,24 @@ class PowerBandsReceiver(Thread):
                     st = time.time()
                     if y == 0:
                         print("stop,%f" % (st-bt))
+                        sender.send(b'0')
+                        # print(bluetooth.write(b'0'))
                     elif y == 1:
                         print("left,%f" % (st-bt))
+                        # print(bluetooth.write(b'1'))
+                        sender.send(b'1')
                     elif y == 2:
                         print("right,%f" % (st-bt))
+                        # print(bluetooth.write(b'2'))
+                        sender.send(b'2')
                     elif y == 3:
                         print("forward,%f" % (st-bt))
+                        # print(bluetooth.write(b'3'))
+                        sender.send(b'3')
                     else:
                         print("none,%f" % (st-bt))
+                        # print(bluetooth.write(b'0'))
+                        sender.send(b'0')
 
                     data = []
 
@@ -430,6 +444,11 @@ def exit_pro(sig, frame):
         print('Close power csv file writer!')
     print("exit")
     power_receiver.join()
+
+    if bluetooth:
+        print("Close bluetooth")
+        bluetooth.write(b'0')
+        bluetooth.close()
     sys.exit(0)
 signal.signal(signal.SIGINT, exit_pro)
 signal.signal(signal.SIGTERM, exit_pro)
@@ -480,6 +499,11 @@ if __name__ == "__main__":
                         'gamma_session_score_ch1','gamma_session_score_ch2','gamma_session_score_ch3','gamma_session_score_ch4']
     writer_power = csv.DictWriter(csvfile_power, fieldnames=fieldnames_power)
     #writer_power.writeheader()
+
+    print("connecting to robot car ...")
+    bluetooth =  serial.Serial('/dev/tty.HC-05-DevB', 9600, timeout=10)
+    print("robot car connected!")
+    sender = BluetoothSender(bluetooth, 5)
 
     power_receiver = PowerBandsReceiver(writer_power) #writer_power
     power_receiver.start()

@@ -35,12 +35,20 @@ def extract_training_data(SEGMENT_SIZE=15):
 							# "../data/shawn/power_data_shawn_forward_2.csv",
 							# "../data/shawn/power_data.csv",
 							# "../data/shawn/power_data 2.csv",
-							"../data/shawn/power_data_r.csv",
+							# "../data/shawn/power_data_r.csv",
 							"../data/shawn/power_data_l.csv",
-							#"../data/shawn/power_data_f.csv",
-							"../data/power_data_r.csv",
+							# "../data/shawn/power_data_f.csv",
+							"../data/power_data_ff.csv",
+							"../data/power_data_fff.csv",
+							#"../data/power_data_ffff.csv",
+							# "../data/power_data_r.csv",
+							# "../data/power_data_rr.csv",
+							# "../data/power_data_rrr.csv",
+							# "../data/power_data_rrrr.csv",
+							"../data/power_data_rrrrr.csv",
+							"../data/power_data_rrrrrrrr.csv",
 							"../data/power_data_l.csv",
-							"../data/power_data_f.csv"
+							# "../data/power_data_f.csv"
 							]
 	training_file_path_stop = [ #"../data/lawrence/power_data_law_stop.csv",
 								#"../data/alex/power_data_alex_stop.csv",
@@ -175,7 +183,7 @@ def create_training_data():
 	np.savetxt("../data/training/training_set.csv", data, delimiter=",")
 
 
-def binary_model(feature, y, model = "svm", kernel = 'rbf', C = 1, min_samples_split = 8):
+def binary_model(feature, y, model = "svm", kernel = 'rbf', C = 1, gamma = 0.7, min_samples_split = 8):
 	for i in range(len(key_map)):
 		y_copy = np.copy(y)
 		for j in range(len(y_copy)):
@@ -197,10 +205,10 @@ def binary_model(feature, y, model = "svm", kernel = 'rbf', C = 1, min_samples_s
 		if model == "dt":
 			clf = tree.DecisionTreeClassifier(min_samples_split = min_samples_split)
 		else:
-			if i == 1 or i == 3:
-				clf = svm.SVC(kernel='rbf', C = 10)
+			if i == 2:
+				clf = svm.SVC(kernel= kernel, C = C, gamma = gamma, class_weight = 'balanced')
 			else:
-				clf = svm.SVC(kernel='rbf', C= C)
+				clf = svm.SVC(kernel= kernel, C= C, gamma = gamma, class_weight = 'balanced')
 
 		clf.fit(X_train,y_train)
 		#clf = joblib.load('svm.joblib')
@@ -255,9 +263,9 @@ def estimator(y_train, y_test, pred_training, pred):
 	# 	if y_test[i] != pred[i]:
 	# 		print("predict value:%d, truth value:%d" % (pred[i], y_test[i]))
 
-def PCA(X):
+def PCA(X, n_components = 30):
 	from sklearn.decomposition import PCA
-	pca = PCA(n_components=30)
+	pca = PCA(n_components)
 	X_new = pca.fit_transform(X)
 
 	print(pca.explained_variance_)  
@@ -288,7 +296,7 @@ if __name__ == '__main__':
 
 	feature, y = load_data("../data/training/training_set.csv")
 	#feature_new = PCA(feature)
-	binary_model(feature, y, model="svm", C = 5)
+	binary_model(feature, y, model="svm", kernel = 'rbf', C = 0.06, gamma = 'scale')
 	#multi_class_model(feature, y, model="dt", min_samples_split = 8)
 	#multi_class_model(feature, y, model="svm", C = 5, kernel = 'rbf')
 
