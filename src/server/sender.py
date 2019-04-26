@@ -18,13 +18,13 @@ class BluetoothSender:
 			# reset counter
 			self.count == 0
 
+
 if __name__ == '__main__':
 	import serial
+	import time
 
-	bluetooth =  serial.Serial('/dev/tty.HC-05-DevB', 9600, timeout=10)
-	print(bluetooth.write(b'3'))
+	bluetooth = serial.Serial('/dev/tty.HC-05-DevB', 9600, timeout=10)
+	print(bluetooth.write(b'2'))
+	time.sleep(2)
+
 	bluetooth.close()
-
-
-
-		

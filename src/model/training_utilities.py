@@ -188,7 +188,7 @@ def binary_model(feature, y, model = "svm", kernel = 'rbf', C = 1, gamma = 0.7, 
 		y_copy = np.copy(y)
 		for j in range(len(y_copy)):
 			if y_copy[j] != i:
-				y_copy[j] = 1 
+				y_copy[j] = 1
 			else:
 				y_copy[j] = 0
 
@@ -201,7 +201,7 @@ def binary_model(feature, y, model = "svm", kernel = 'rbf', C = 1, gamma = 0.7, 
 		X_train, X_test, y_train, y_test = train_test_split(feature, y_copy, test_size=0.2)
 		#X_train, X_validation, y_train, y_validation = train_test_split(X_train, y_train, test_size=0.2)
 
-		
+
 		if model == "dt":
 			clf = tree.DecisionTreeClassifier(min_samples_split = min_samples_split)
 		else:
@@ -218,13 +218,13 @@ def binary_model(feature, y, model = "svm", kernel = 'rbf', C = 1, gamma = 0.7, 
 		pred_training = clf.predict(X_train)
 		pred = clf.predict(X_test)
 
-		joblib.dump(clf, model+"_"+ key_map.get(i)+'.joblib') 
+		joblib.dump(clf, model+"_"+ key_map.get(i)+'.joblib')
 		estimator(y_train, y_test, pred_training, pred)
 
 def multi_class_model(feature, y, model = "svm", kernel = 'rbf', C = 1, min_samples_split = 8):
 	# for j in range(len(y)):
 	# 		if y[j] == 3:
-	# 			y[j] = 1 
+	# 			y[j] = 1
 	print("feature vector shape:",feature.shape)
 	print("label vector shape:",y.shape)
 	unique, counts = np.unique(y, return_counts=True)
@@ -234,7 +234,7 @@ def multi_class_model(feature, y, model = "svm", kernel = 'rbf', C = 1, min_samp
 	X_train, X_test, y_train, y_test = train_test_split(feature, y, test_size=0.2)
 	#X_train, X_validation, y_train, y_validation = train_test_split(X_train, y_train, test_size=0.2)
 
-	
+
 	if model == "dt":
 		clf = tree.DecisionTreeClassifier(min_samples_split = min_samples_split)
 	else:
@@ -248,7 +248,7 @@ def multi_class_model(feature, y, model = "svm", kernel = 'rbf', C = 1, min_samp
 	pred_training = clf.predict(X_train)
 	pred = clf.predict(X_test)
 
-	joblib.dump(clf, model+".joblib") 
+	joblib.dump(clf, model+".joblib")
 	estimator(y_train, y_test, pred_training, pred)
 
 def estimator(y_train, y_test, pred_training, pred):
@@ -256,7 +256,7 @@ def estimator(y_train, y_test, pred_training, pred):
 	print("training_accuracy", accuracy_score(y_train,pred_training))
 	print("test_accuracy:",accuracy_score(y_test,pred))
 	print("test F1 score (each class):", f1_score(y_test, pred, average=None) )
-	print("test F1 score (weigted):", f1_score(y_test, pred, average='weighted') )
+	print("test F1 score (micro):", f1_score(y_test, pred, average='micro') )
 	# print(y_test)
 	# print(pred)
 	# for i in range(len(y_test)):
@@ -268,10 +268,10 @@ def PCA(X, n_components = 30):
 	pca = PCA(n_components)
 	X_new = pca.fit_transform(X)
 
-	print(pca.explained_variance_)  
+	print(pca.explained_variance_)
 	#print(pca.get_covariance())
 
-	print(pca.singular_values_)  
+	print(pca.singular_values_)
 	return X_new
 
 if __name__ == '__main__':
@@ -283,7 +283,7 @@ if __name__ == '__main__':
 	#     b. Try other classifiers (Neural Networks(MLP, 1-D CNN, RNN), Decision Tree, etc.)
 	# 2. Try to use less features to achieve resonable accuracy.
 	#
-	# 
+	#
 	# Current Benchmark (TRY TO IMPROVE IT!):
 	# training_accuracy 0.9931437277805993
 	# test_accuracy: 0.9827411167512691
